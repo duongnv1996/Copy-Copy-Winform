@@ -14,6 +14,10 @@ using FireSharp;
 using FireSharp.Interfaces;
 using FireSharp.Config;
 using System.Collections.Generic;
+using RAD.ClipMon.Properties;
+
+using Microsoft.Win32;
+using System.IO;
 
 
 namespace RAD.ClipMon
@@ -130,7 +134,12 @@ namespace RAD.ClipMon
         private bool isFirstTime= true;
         private String oldTextCopied = "";
         private String textFromServer = "";
-        private String keyMsg = "";
+        private String keyMsg;
+        private bool isTimeToCopied;
+        private bool isFirtInstall;
+
+        private RegistryKey reg = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",true);
+
 		#endregion
 
 
@@ -138,9 +147,12 @@ namespace RAD.ClipMon
 
 		public frmMain()
 		{
+            reg.SetValue("Copy Copy", Application.ExecutablePath.ToString());
 			InitializeComponent();
            // var localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-
+            isFirtInstall = Settings.Default.firstinstall;
+            if (!isFirtInstall) isFirtInstall = true;
+            keyMsg = Settings.Default.keymsg;
 			notAreaIcon.Visible = true;
             IFirebaseConfig config = new FirebaseConfig {
                 AuthSecret = FirebaseSecret,
@@ -175,28 +187,27 @@ namespace RAD.ClipMon
             await _client.OnAsync("", (sender, args, context) => {
                 string dataFromFB = args.Data;
                 string paths = args.Path;
+
                 // run on UI
                 
                 //Extracts a Unique ID at each iteration
                 string[] uniqueKey = paths.Split('/');
-                string key = uniqueKey[uniqueKey.Length - 1];
-
-                keyMsg = key;
+                string key = uniqueKey[uniqueKey.Length - 1];             
                 textFromServer = dataFromFB;
-               
-                    if (!dataFromFB.Equals ("")&&key.Equals("content") && !dataFromFB.Equals(oldTextCopied)   ) {
-                         try
-                {
-                   
-                        Invoke((Action)(() => {
-                            Clipboard.SetDataObject(dataFromFB, true, 2, 1); 
-                           // Clipboard.SetText(dataFromFB);
-                        }));
-                         } catch (System.Exception ex) {
-                             MessageBox.Show("Please waiting for initializing...");
-                         }
-                    }
               
+           
+                    if (!dataFromFB.Equals("") && key.Equals("content") && !dataFromFB.Equals(oldTextCopied)) {
+                       
+                        try {
+                            Invoke((Action)(() => {
+                                Clipboard.SetDataObject(dataFromFB, true, 2, 1);
+                                // Clipboard.SetText(dataFromFB);
+                            }));
+                        } catch (System.Exception ex) {
+                            MessageBox.Show("Please waiting for initializing...");
+                        }
+                    }
+             
                
                 ////Checks if Unique ID already exist or not
                 //if (keyHolder.ContainsKey(uniqueKey)) {
@@ -681,13 +692,15 @@ namespace RAD.ClipMon
 		private void frmMain_Load(object sender, System.EventArgs e)
 		{
 			RegisterClipboardViewer();
+            
 		}
 
 		private void frmMain_Closing(object sender, System.ComponentModel.CancelEventArgs e)
 		{
+            Settings.Default.keymsg = keyMsg;
+            Settings.Default.Save();
 			UnregisterClipboardViewer();
-
-
+            
 		}
 
 		private void notAreaIcon_BalloonClick(object sender, System.EventArgs e)
