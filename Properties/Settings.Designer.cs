@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RAD.ClipMon.Properties {
+namespace copy.copy.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -44,6 +44,18 @@ namespace RAD.ClipMon.Properties {
             }
             set {
                 this["firstinstall"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string url {
+            get {
+                return ((string)(this["url"]));
+            }
+            set {
+                this["url"] = value;
             }
         }
     }

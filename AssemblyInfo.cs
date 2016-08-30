@@ -6,13 +6,13 @@ using System.Runtime.CompilerServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 //
-[assembly: AssemblyTitle("Clipboard Monitor Example")]
-[assembly: AssemblyDescription("Clipboard Monitor Example")]
+[assembly: AssemblyTitle("Copy Copy")]
+[assembly: AssemblyDescription("Copy Copy Sync your clipboard")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Rad Software")]
+[assembly: AssemblyCompany("DuongKK")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Copyright (c) Ross Donald")]
-[assembly: AssemblyTrademark("http://www.radsoftware.com.au")]
+[assembly: AssemblyCopyright("Copyright (c) DuongKK")]
+[assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]		
 
 //

@@ -21,11 +21,6 @@ E:\Download\RAD_ClipboardMonitorExampleSrc (1)\obj\Debug\RAD.ClipMon.frmMain.res
 E:\Download\RAD_ClipboardMonitorExampleSrc (1)\obj\Debug\ClipMon.csproj.GenerateResource.Cache
 E:\Download\RAD_ClipboardMonitorExampleSrc (1)\obj\Debug\rad.clipmon.exe
 E:\Download\RAD_ClipboardMonitorExampleSrc (1)\obj\Debug\rad.clipmon.pdb
-D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\bin\Debug\rad.clipmon.exe.config
-D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\rad.clipmon.exe
-D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\rad.clipmon.pdb
-D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\bin\Debug\rad.clipmon.exe
-D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\bin\Debug\rad.clipmon.pdb
 D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\bin\Debug\FireSharp.dll
 D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\bin\Debug\Microsoft.Threading.Tasks.dll
 D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\bin\Debug\Microsoft.Threading.Tasks.Extensions.Desktop.dll
@@ -44,3 +39,14 @@ D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\Clip
 D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\ClipMon.csprojResolveAssemblyReference.cache
 D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\RAD.ClipMon.frmMain.resources
 D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\ClipMon.csproj.GenerateResource.Cache
+D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\bin\Debug\Copy Copy.exe.config
+D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\copy.copy.Properties.Resources.resources
+D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\bin\Debug\Copy Copy.exe
+D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\bin\Debug\Copy Copy.pdb
+D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\Copy Copy.exe
+D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\Copy Copy.pdb
+D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\bin\Debug\Copy Copy.exe.manifest
+D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\bin\Debug\Copy Copy.application
+D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\Copy Copy.TrustInfo.xml
+D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\Copy Copy.exe.manifest
+D:\LanguageProgram\lap trinh C[C++]\source code\Copy-Copy-Winform\obj\Debug\Copy Copy.application

@@ -14,34 +14,18 @@ using FireSharp;
 using FireSharp.Interfaces;
 using FireSharp.Config;
 using System.Collections.Generic;
-using RAD.ClipMon.Properties;
+
 
 using Microsoft.Win32;
 using System.IO;
+using copy.copy.Properties;
+using FireSharp.Response;
+using System.Threading.Tasks;
 
 
 namespace RAD.ClipMon
 {
-	/// <summary>
-	/// Clipboard Monitor Example 
-	/// Copyright (c) Ross Donald 2003
-	/// ross@radsoftware.com.au
-	/// http://www.radsoftware.com.au
-	/// <br/>
-	/// Demonstrates how to create a clipboard monitor in C#. Whenever an item is copied
-	/// to the clipboard by any application this form will be notified by a call to 
-	/// the WindowProc method with the WM_DRAWCLIPBOARD message allowing this form to
-	/// read the contents of the clipboard and perform some processing.
-	/// </summary>
-	/// <remarks>
-	/// This application has some functionality beyond a simple example. When an item is copied
-	/// to the clipboard this application looks for hyperlinks, unc paths or email addresses 
-	/// then displays a balloon dialog (Windows XP only) showing the link that was found.
-	/// The icon in the system tray area can be clicked to display a menu of the found links.
-	/// <br/>
-	/// This source code is a work in progress and comes without warranty expressed or implied.
-	/// It is an attempt to demonstrate a concept, not to be a finished application.
-	/// </remarks>
+	
 	public class frmMain : System.Windows.Forms.Form
 	{
 		#region Clipboard Formats
@@ -110,24 +94,15 @@ namespace RAD.ClipMon
 
 		private System.ComponentModel.IContainer components;
 
-		private System.Windows.Forms.MainMenu menuMain;
-		private System.Windows.Forms.MenuItem mnuFormats;
-		private System.Windows.Forms.RichTextBox ctlClipboardText;
-		private System.Windows.Forms.MenuItem mnuSupported;
-		protected System.Windows.Forms.ContextMenu cmnuTray;
-		private System.Windows.Forms.MenuItem itmExit;
-		private System.Windows.Forms.MenuItem itmHide;
-		private System.Windows.Forms.MenuItem itmSep2;
-		private System.Windows.Forms.MenuItem itmSep1;
-		private System.Windows.Forms.MenuItem itmHyperlink;
-		private System.Windows.Forms.MenuItem itmSystray;
+        private System.Windows.Forms.MainMenu menuMain;
+        private System.Windows.Forms.RichTextBox ctlClipboardText;
 		private RAD.Windows.NotificationAreaIcon notAreaIcon;
 
 		IntPtr _ClipboardViewerNext;
 		Queue _hyperlink = new Queue();
 
         //firebase
-        private const string BasePath = "https://clipboard-copy.firebaseio.com/";
+        private  string BasePath = "https://clipboard-copy.firebaseio.com/";
         private const string FirebaseSecret = "";
         private static FirebaseClient _client;
 
@@ -137,7 +112,17 @@ namespace RAD.ClipMon
         private String keyMsg;
         private bool isTimeToCopied;
         private bool isFirtInstall;
-
+        private TextBox txtId;
+        private Button btnLogin;
+        private PictureBox ptrbox;
+        protected ContextMenu cmnuTray;
+        private MenuItem itmSystray;
+        private MenuItem itmHyperlink;
+        private MenuItem itmSep1;
+        private MenuItem itmHide;
+        private MenuItem itmSep2;
+        private MenuItem itmExit;
+        private MenuItem itemLogout;
         private RegistryKey reg = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",true);
 
 		#endregion
@@ -153,13 +138,13 @@ namespace RAD.ClipMon
             isFirtInstall = Settings.Default.firstinstall;
             if (!isFirtInstall) isFirtInstall = true;
             keyMsg = Settings.Default.keymsg;
-			notAreaIcon.Visible = true;
-            IFirebaseConfig config = new FirebaseConfig {
-                AuthSecret = FirebaseSecret,
-                BasePath = BasePath
-            };
-            _client = new FirebaseClient(config);
-            ListenToStream();
+            notAreaIcon.Visible = true;
+            String url = copy.copy.Properties.Settings.Default.url;
+            if (!url.Equals("")) {
+                BasePath = url;
+                goListen();
+            }
+            ContextMenuBuild();
 		}
         
 		#endregion
@@ -194,8 +179,7 @@ namespace RAD.ClipMon
                 string[] uniqueKey = paths.Split('/');
                 string key = uniqueKey[uniqueKey.Length - 1];             
                 textFromServer = dataFromFB;
-              
-           
+               
                     if (!dataFromFB.Equals("") && key.Equals("content") && !dataFromFB.Equals(oldTextCopied)) {
                        
                         try {
@@ -238,169 +222,6 @@ namespace RAD.ClipMon
 			Win32.User32.ChangeClipboardChain(this.Handle, _ClipboardViewerNext);
 		}
 
-		/// <summary>
-		/// Build a menu listing the formats supported by the contents of the clipboard
-		/// </summary>
-		/// <param name="iData">The current clipboard data object</param>
-		private void FormatMenuBuild(IDataObject iData)
-		{
-			string[] astrFormatsNative = iData.GetFormats(false);
-			string[] astrFormatsAll = iData.GetFormats(true);
-
-			Hashtable formatList = new Hashtable(10);
-
-			mnuFormats.MenuItems.Clear();
-
-			for (int i = 0; i <= astrFormatsAll.GetUpperBound(0); i++)
-			{
-				formatList.Add(astrFormatsAll[i], "Converted");
-			}
-
-			for (int i = 0; i <= astrFormatsNative.GetUpperBound(0); i++)
-			{
-				if (formatList.Contains(astrFormatsNative[i]))
-				{
-					formatList[astrFormatsNative[i]] = "Native/Converted";
-				}
-				else
-				{
-					formatList.Add(astrFormatsNative[i], "Native");
-				}
-			}
-
-			foreach (DictionaryEntry item in formatList) 
-			{
-				MenuItem itmNew = new MenuItem(item.Key.ToString() + "\t" + item.Value.ToString());
-				mnuFormats.MenuItems.Add(itmNew);
-			}
-		}
-
-		/// <summary>
-		/// list the formats that are supported from the default clipboard formats.
-		/// </summary>
-		/// <param name="iData">The current clipboard contents</param>
-		private void SupportedMenuBuild(IDataObject iData)
-		{
-			mnuSupported.MenuItems.Clear();
-		
-			for (int i = 0; i <= formatsAll.GetUpperBound(0); i++)
-			{
-				MenuItem itmFormat = new MenuItem(formatsAllDesc[i]);
-				//
-				// Get supported formats
-				//
-				if (iData.GetDataPresent(formatsAll[i]))
-				{
-					itmFormat.Checked = true;
-				}
-				mnuSupported.MenuItems.Add(itmFormat);
-		
-			}
-		}
-
-		/// <summary>
-		/// Search the clipboard contents for hyperlinks and unc paths, etc
-		/// </summary>
-		/// <param name="iData">The current clipboard contents</param>
-		/// <returns>true if new links were found, false otherwise</returns>
-		private bool ClipboardSearch(IDataObject iData)
-		{
-			bool FoundNewLinks = false;
-			//
-			// If it is not text then quit
-			// cannot search bitmap etc
-			//
-			if (!iData.GetDataPresent(DataFormats.Text))
-			{
-				return false; 
-			}
-
-			string strClipboardText;
-
-			try 
-			{
-				 strClipboardText = (string)iData.GetData(DataFormats.Text);
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(ex.ToString());
-				return false;
-			}
-			
-			// Hyperlinks e.g. http://www.server.com/folder/file.aspx
-			Regex rxURL = new Regex(@"(\b(?:http|https|ftp|file)://[^\s]+)", RegexOptions.IgnoreCase);
-			rxURL.Match(strClipboardText);
-
-			foreach (Match rm in rxURL.Matches(strClipboardText))
-			{
-				if(!_hyperlink.Contains(rm.ToString()))
-				{
-					_hyperlink.Enqueue(rm.ToString());
-					FoundNewLinks = true;
-				}
-			}
-
-			// Files and folders - \\servername\foldername\
-			// TODO needs work
-			Regex rxFile = new Regex(@"(\b\w:\\[^ ]*)", RegexOptions.IgnoreCase);
-			rxFile.Match(strClipboardText);
-
-			foreach (Match rm in rxFile.Matches(strClipboardText))
-			{
-				if(!_hyperlink.Contains(rm.ToString()))
-				{
-					_hyperlink.Enqueue(rm.ToString());
-					FoundNewLinks = true;
-				}
-			}
-
-			// UNC Files 
-			// TODO needs work
-			Regex rxUNC = new Regex(@"(\\\\[^\s/:\*\?\" + "\"" + @"\<\>\|]+)", RegexOptions.IgnoreCase);
-			rxUNC.Match(strClipboardText);
-
-			foreach (Match rm in rxUNC.Matches(strClipboardText))
-			{
-				if(!_hyperlink.Contains(rm.ToString()))
-				{
-					_hyperlink.Enqueue(rm.ToString());
-					FoundNewLinks = true;
-				}
-			}
-
-			// UNC folders
-			// TODO needs work
-			Regex rxUNCFolder = new Regex(@"(\\\\[^\s/:\*\?\" + "\"" + @"\<\>\|]+\\)", RegexOptions.IgnoreCase);
-			rxUNCFolder.Match(strClipboardText);
-
-			foreach (Match rm in rxUNCFolder.Matches(strClipboardText))
-			{
-				if(!_hyperlink.Contains(rm.ToString()))
-				{
-					_hyperlink.Enqueue(rm.ToString());
-					FoundNewLinks = true;
-				}
-			}
-
-			// Email Addresses
-			Regex rxEmailAddress = new Regex(@"([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)", RegexOptions.IgnoreCase);
-			rxEmailAddress.Match(strClipboardText);
-
-			foreach (Match rm in rxEmailAddress.Matches(strClipboardText))
-			{
-				if(!_hyperlink.Contains(rm.ToString()))
-				{
-					_hyperlink.Enqueue("mailto:" + rm.ToString());
-					FoundNewLinks = true;
-				}
-			}
-
-			return FoundNewLinks;
-		}
-
-		/// <summary>
-		/// Build the system tray menu from the hyperlink list
-		/// </summary>
 		private void ContextMenuBuild()
 		{
 			//
@@ -413,16 +234,15 @@ namespace RAD.ClipMon
 
 			cmnuTray.MenuItems.Clear();
 
-			foreach (string objLink in _hyperlink)
-			{
-				cmnuTray.MenuItems.Add(objLink.ToString(), new EventHandler(itmHyperlink_Click));
-			}
-			cmnuTray.MenuItems.Add("-");
-			cmnuTray.MenuItems.Add("Cancel Menu", new EventHandler(itmCancelMenu_Click));
-			cmnuTray.MenuItems.Add("-");
+            //foreach (string objLink in _hyperlink)
+            //{
+            //    cmnuTray.MenuItems.Add(objLink.ToString(), new EventHandler(itmHyperlink_Click));
+            //}
+			
 			cmnuTray.MenuItems.Add(itmHide.Text, new EventHandler(itmHide_Click));
-			cmnuTray.MenuItems.Add("-");
+			
 			cmnuTray.MenuItems.Add("E&xit", new EventHandler(itmExit_Click));
+            cmnuTray.MenuItems.Add("Log Out", new EventHandler(itemLogout_Click));
 		}
 
 
@@ -430,23 +250,23 @@ namespace RAD.ClipMon
 		/// Called when an item is chosen from the menu
 		/// </summary>
 		/// <param name="pstrLink">The link that was clicked</param>
-		private void OpenLink(string pstrLink)
-		{
-			try
-			{
-				//
-				// Run the link
-				//
+        //private void OpenLink(string pstrLink)
+        //{
+        //    try
+        //    {
+        //        //
+        //        // Run the link
+        //        //
 
-				// TODO needs more work to check for missing files etc
-				System.Diagnostics.Process.Start(pstrLink);
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(this, ex.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-			}
+        //        // TODO needs more work to check for missing files etc
+        //        System.Diagnostics.Process.Start(pstrLink);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show(this, ex.ToString(), Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+        //    }
 
-		}
+        //}
 
 
         private void pushMsg(String content) {
@@ -454,8 +274,9 @@ namespace RAD.ClipMon
             msg.content =content;
             DateTime today = DateTime.Today;
             String timeNow = DateTime.Now.ToString("HH:mm");
-            msg.date = today.ToString("MM/dd ") + timeNow;
+            msg.date = today.ToString("dd/MM ") + timeNow;
             _client.PushAsync("", msg);
+            
         }
 		/// <summary>
 		/// Show the clipboard contents in the window 
@@ -494,7 +315,7 @@ namespace RAD.ClipMon
 			//
 			if (iData.GetDataPresent(DataFormats.Rtf))
 			{
-				ctlClipboardText.Rtf = (string)iData.GetData(DataFormats.Rtf);
+				//ctlClipboardText.Rtf = (string)iData.GetData(DataFormats.Rtf);
                 if (!txtClipboard.Equals(textFromServer)) 
                 pushMsg(txtClipboard);
 				if(iData.GetDataPresent(DataFormats.Text))
@@ -509,7 +330,7 @@ namespace RAD.ClipMon
 				//
 				if(iData.GetDataPresent(DataFormats.Text))
 				{
-					ctlClipboardText.Text = (string)iData.GetData(DataFormats.Text);
+					//ctlClipboardText.Text = (string)iData.GetData(DataFormats.Text);
                     if (!txtClipboard.Equals(textFromServer)) 
                     pushMsg(txtClipboard);	
 					strText = "Text"; 
@@ -521,33 +342,32 @@ namespace RAD.ClipMon
 					//
 					// Only show RTF or TEXT
 					//
-					ctlClipboardText.Text = "(cannot display this format)";
+					//ctlClipboardText.Text = "(cannot display this format)";
 				}
 			}
 
 			notAreaIcon.Tooltip = strText;
 
-			if( ClipboardSearch(iData) )
-			{
-				//
-				// Found some new links
-				//
-				System.Text.StringBuilder strBalloon = new System.Text.StringBuilder(100);
+            //if( ClipboardSearch(iData) )
+            //{
+            //    //
+            //    // Found some new links
+            //    //
+            //    System.Text.StringBuilder strBalloon = new System.Text.StringBuilder(100);
 
-				foreach (string objLink in _hyperlink)
-				{
-					strBalloon.Append(objLink.ToString()  + "\n");
-				}
+            //    foreach (string objLink in _hyperlink)
+            //    {
+            //        strBalloon.Append(objLink.ToString()  + "\n");
+            //    }
 
-				FormatMenuBuild(iData);
-				SupportedMenuBuild(iData);					
-				ContextMenuBuild();
+								
+            //    ContextMenuBuild();
 
-				if (_hyperlink.Count > 0)
-				{
-					notAreaIcon.BalloonDisplay(NotificationAreaIcon.NOTIFYICONdwInfoFlags.NIIF_INFO, "Links", strBalloon.ToString());
-				}
-			}
+            //    if (_hyperlink.Count > 0)
+            //    {
+            //        notAreaIcon.BalloonDisplay(NotificationAreaIcon.NOTIFYICONdwInfoFlags.NIIF_INFO, "Links", strBalloon.ToString());
+            //    }
+            //}
 		}
 
 		#endregion
@@ -647,7 +467,13 @@ namespace RAD.ClipMon
 		{
 			this.Close();
 		}
-
+        private void itemLogout_Click(object sender, EventArgs e) {
+            Settings.Default.url = "";
+            _client.Dispose();
+            itmHide_Click(sender, e);
+            BasePath = "https://clipboard-copy.firebaseio.com/"; 
+            showLogin();
+        }
 		private void itmHide_Click(object sender, System.EventArgs e)
 		{
 			this.Visible = (! this.Visible);
@@ -662,18 +488,8 @@ namespace RAD.ClipMon
 			}
 		}
 
-		private void itmHyperlink_Click(object sender, System.EventArgs e)
-		{
-			MenuItem itmHL = (MenuItem)sender;
-
-			OpenLink(itmHL.Text);
-		}
-
-		private void itmCancelMenu_Click(object sender, System.EventArgs e)
-		{
-			// Do nothing - Cancel the menu
-		}
-
+		
+		
 		private void frmMain_Resize(object sender, System.EventArgs e)
 		{
 			if ((this.WindowState == FormWindowState.Minimized) && (this.Visible == true))
@@ -692,6 +508,7 @@ namespace RAD.ClipMon
 		private void frmMain_Load(object sender, System.EventArgs e)
 		{
 			RegisterClipboardViewer();
+          
             
 		}
 
@@ -710,7 +527,7 @@ namespace RAD.ClipMon
 				string strItem = (string)_hyperlink.ToArray()[0];
 
 				// Only one link so open it
-				OpenLink(strItem);
+                //OpenLink(strItem);
 			}
 			else
 			{
@@ -751,34 +568,19 @@ namespace RAD.ClipMon
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.menuMain = new System.Windows.Forms.MainMenu(this.components);
-            this.mnuFormats = new System.Windows.Forms.MenuItem();
-            this.mnuSupported = new System.Windows.Forms.MenuItem();
             this.notAreaIcon = new RAD.Windows.NotificationAreaIcon(this.components);
             this.cmnuTray = new System.Windows.Forms.ContextMenu();
+            this.itmHide = new System.Windows.Forms.MenuItem();
+            this.itmExit = new System.Windows.Forms.MenuItem();
+            this.itemLogout = new System.Windows.Forms.MenuItem();
+            this.ctlClipboardText = new System.Windows.Forms.RichTextBox();
+            this.txtId = new System.Windows.Forms.TextBox();
+            this.btnLogin = new System.Windows.Forms.Button();
+            this.ptrbox = new System.Windows.Forms.PictureBox();
             this.itmSystray = new System.Windows.Forms.MenuItem();
             this.itmHyperlink = new System.Windows.Forms.MenuItem();
-            this.itmSep1 = new System.Windows.Forms.MenuItem();
-            this.itmHide = new System.Windows.Forms.MenuItem();
-            this.itmSep2 = new System.Windows.Forms.MenuItem();
-            this.itmExit = new System.Windows.Forms.MenuItem();
-            this.ctlClipboardText = new System.Windows.Forms.RichTextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.ptrbox)).BeginInit();
             this.SuspendLayout();
-            // 
-            // menuMain
-            // 
-            this.menuMain.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.mnuFormats,
-            this.mnuSupported});
-            // 
-            // mnuFormats
-            // 
-            this.mnuFormats.Index = 0;
-            this.mnuFormats.Text = "Formats";
-            // 
-            // mnuSupported
-            // 
-            this.mnuSupported.Index = 1;
-            this.mnuSupported.Text = "Supported";
             // 
             // notAreaIcon
             // 
@@ -792,65 +594,88 @@ namespace RAD.ClipMon
             // cmnuTray
             // 
             this.cmnuTray.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.itmSystray,
-            this.itmHyperlink,
-            this.itmSep1,
             this.itmHide,
-            this.itmSep2,
-            this.itmExit});
-            // 
-            // itmSystray
-            // 
-            this.itmSystray.Index = 0;
-            this.itmSystray.Text = "C:\\Temp\\SysTray";
-            this.itmSystray.Click += new System.EventHandler(this.itmHyperlink_Click);
-            // 
-            // itmHyperlink
-            // 
-            this.itmHyperlink.DefaultItem = true;
-            this.itmHyperlink.Index = 1;
-            this.itmHyperlink.Text = "http://localhost/footprint/";
-            this.itmHyperlink.Click += new System.EventHandler(this.itmHyperlink_Click);
-            // 
-            // itmSep1
-            // 
-            this.itmSep1.Index = 2;
-            this.itmSep1.Text = "-";
+            this.itmExit,
+            this.itemLogout});
             // 
             // itmHide
             // 
-            this.itmHide.Index = 3;
+            this.itmHide.Index = 0;
             this.itmHide.Text = "Hide";
             this.itmHide.Click += new System.EventHandler(this.itmHide_Click);
             // 
-            // itmSep2
-            // 
-            this.itmSep2.Index = 4;
-            this.itmSep2.Text = "-";
-            // 
             // itmExit
             // 
-            this.itmExit.Index = 5;
+            this.itmExit.Index = 1;
             this.itmExit.MergeOrder = 1000;
             this.itmExit.Text = "E&xit";
             // 
+            // itemLogout
+            // 
+            this.itemLogout.Index = 2;
+            this.itemLogout.MergeOrder = 1000;
+            this.itemLogout.Text = "Log Out";
+            // 
             // ctlClipboardText
             // 
+            this.ctlClipboardText.BackColor = System.Drawing.SystemColors.Control;
             this.ctlClipboardText.DetectUrls = false;
             this.ctlClipboardText.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ctlClipboardText.Location = new System.Drawing.Point(0, 0);
             this.ctlClipboardText.Name = "ctlClipboardText";
             this.ctlClipboardText.ReadOnly = true;
-            this.ctlClipboardText.Size = new System.Drawing.Size(348, 273);
+            this.ctlClipboardText.Size = new System.Drawing.Size(445, 334);
             this.ctlClipboardText.TabIndex = 0;
-            this.ctlClipboardText.Text = "";
+            this.ctlClipboardText.Text = "Connected";
+            this.ctlClipboardText.Visible = false;
             this.ctlClipboardText.WordWrap = false;
             this.ctlClipboardText.TextChanged += new System.EventHandler(this.ctlClipboardText_TextChanged);
+            // 
+            // txtId
+            // 
+            this.txtId.Location = new System.Drawing.Point(85, 175);
+            this.txtId.Name = "txtId";
+            this.txtId.Size = new System.Drawing.Size(272, 26);
+            this.txtId.TabIndex = 1;
+            this.txtId.Text = "Enter your code";
+            // 
+            // btnLogin
+            // 
+            this.btnLogin.Location = new System.Drawing.Point(148, 228);
+            this.btnLogin.Name = "btnLogin";
+            this.btnLogin.Size = new System.Drawing.Size(156, 52);
+            this.btnLogin.TabIndex = 2;
+            this.btnLogin.Text = "Connect";
+            this.btnLogin.UseVisualStyleBackColor = true;
+            this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
+            // 
+            // ptrbox
+            // 
+            this.ptrbox.Image = ((System.Drawing.Image)(resources.GetObject("ptrbox.Image")));
+            this.ptrbox.Location = new System.Drawing.Point(157, 23);
+            this.ptrbox.Name = "ptrbox";
+            this.ptrbox.Size = new System.Drawing.Size(134, 126);
+            this.ptrbox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.ptrbox.TabIndex = 3;
+            this.ptrbox.TabStop = false;
+            // 
+            // itmSystray
+            // 
+            this.itmSystray.Index = -1;
+            this.itmSystray.Text = "";
+            // 
+            // itmHyperlink
+            // 
+            this.itmHyperlink.Index = -1;
+            this.itmHyperlink.Text = "";
             // 
             // frmMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(7, 19);
-            this.ClientSize = new System.Drawing.Size(348, 273);
+            this.ClientSize = new System.Drawing.Size(445, 334);
+            this.Controls.Add(this.ptrbox);
+            this.Controls.Add(this.btnLogin);
+            this.Controls.Add(this.txtId);
             this.Controls.Add(this.ctlClipboardText);
             this.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -858,11 +683,13 @@ namespace RAD.ClipMon
             this.Menu = this.menuMain;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "Clipboard Monitor Sample from www.radsoftware.com.au";
+            this.Text = "Copy Copy";
             this.Closing += new System.ComponentModel.CancelEventHandler(this.frmMain_Closing);
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.Resize += new System.EventHandler(this.frmMain_Resize);
+            ((System.ComponentModel.ISupportInitialize)(this.ptrbox)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
 		}
 		#endregion
@@ -870,6 +697,58 @@ namespace RAD.ClipMon
         private void ctlClipboardText_TextChanged(object sender, EventArgs e) {
 
         }
+        private void showLogin() {
+            ctlClipboardText.Visible = false;
+            txtId.Visible = true;
+            btnLogin.Visible = true;
+            ptrbox.Visible = true;
+
+        }
+        private void hideLogin() {
+            ctlClipboardText.Visible = true;
+            txtId.Visible = false;
+            btnLogin.Visible = false;
+            ptrbox.Visible = false;
+        }
+        private  async Task    goListen() {
+            hideLogin();
+            IFirebaseConfig config = new FirebaseConfig {
+                AuthSecret = FirebaseSecret,
+                BasePath = BasePath
+            };
+            _client = new FirebaseClient(config);
+             ListenToStream();
+           
+        }
+
+        private  void btnLogin_Click(object sender, EventArgs e) {
+            String idUrl = txtId.Text;
+            
+            if (!idUrl.Equals("") ) {
+                verify(idUrl);
+            }
+        }
+        private async Task verify(String email) {
+
+            IFirebaseConfig configReg = new FirebaseConfig {
+                AuthSecret = FirebaseSecret,
+                BasePath = "https://clipboard-copy.firebaseio.com/" + "users/" + email
+            };
+            FirebaseClient _clientReg = new FirebaseClient(configReg);
+            FirebaseResponse response = await _clientReg.GetAsync("todo");
+            if (response.Body.ToString().Equals("\"1\"")) {
+                BasePath = BasePath + "users/" + email;
+                copy.copy.Properties.Settings.Default.url = BasePath;
+                copy.copy.Properties.Settings.Default.Save();
+                Settings.Default.Save();
+                goListen();
+            } else {
+                MessageBox.Show("Your code was not exist!");
+            }
+        }
+
+      
+
 
 		
 
