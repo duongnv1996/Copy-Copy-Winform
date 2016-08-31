@@ -348,26 +348,7 @@ namespace RAD.ClipMon
 
 			notAreaIcon.Tooltip = strText;
 
-            //if( ClipboardSearch(iData) )
-            //{
-            //    //
-            //    // Found some new links
-            //    //
-            //    System.Text.StringBuilder strBalloon = new System.Text.StringBuilder(100);
 
-            //    foreach (string objLink in _hyperlink)
-            //    {
-            //        strBalloon.Append(objLink.ToString()  + "\n");
-            //    }
-
-								
-            //    ContextMenuBuild();
-
-            //    if (_hyperlink.Count > 0)
-            //    {
-            //        notAreaIcon.BalloonDisplay(NotificationAreaIcon.NOTIFYICONdwInfoFlags.NIIF_INFO, "Links", strBalloon.ToString());
-            //    }
-            //}
 		}
 
 		#endregion
@@ -389,12 +370,7 @@ namespace RAD.ClipMon
 		{
 			switch ((Win32.Msgs)m.Msg)
 			{
-					//
-					// The WM_DRAWCLIPBOARD message is sent to the first window 
-					// in the clipboard viewer chain when the content of the 
-					// clipboard changes. This enables a clipboard viewer 
-					// window to display the new content of the clipboard. 
-					//
+			
 				case Win32.Msgs.WM_DRAWCLIPBOARD:
 					
 					Debug.WriteLine("WindowProc DRAWCLIPBOARD: " + m.Msg, "WndProc");
@@ -403,41 +379,18 @@ namespace RAD.ClipMon
                     } else {
                         isFirstTime = false;
                     }
-					//
-					// Each window that receives the WM_DRAWCLIPBOARD message 
-					// must call the SendMessage function to pass the message 
-					// on to the next window in the clipboard viewer chain.
-					//
+			
 					Win32.User32.SendMessage(_ClipboardViewerNext, m.Msg, m.WParam, m.LParam);
 					break;
 
 
-					//
-					// The WM_CHANGECBCHAIN message is sent to the first window 
-					// in the clipboard viewer chain when a window is being 
-					// removed from the chain. 
-					//
 				case Win32.Msgs.WM_CHANGECBCHAIN:
 					Debug.WriteLine("WM_CHANGECBCHAIN: lParam: " + m.LParam, "WndProc");
 
-					// When a clipboard viewer window receives the WM_CHANGECBCHAIN message, 
-					// it should call the SendMessage function to pass the message to the 
-					// next window in the chain, unless the next window is the window 
-					// being removed. In this case, the clipboard viewer should save 
-					// the handle specified by the lParam parameter as the next window in the chain. 
-
-					//
-					// wParam is the Handle to the window being removed from 
-					// the clipboard viewer chain 
-					// lParam is the Handle to the next window in the chain 
-					// following the window being removed. 
+				
 					if (m.WParam == _ClipboardViewerNext)
 					{
-						//
-						// If wParam is the next clipboard viewer then it
-						// is being removed so update pointer to the next
-						// window in the clipboard chain
-						//
+						
 						_ClipboardViewerNext = m.LParam;
 					}
 					else
@@ -447,10 +400,7 @@ namespace RAD.ClipMon
 					break;
 
 				default:
-					//
-					// Let the form process the messages that we are
-					// not interested in
-					//
+					
 					base.WndProc(ref m);
 					break;
 
@@ -469,7 +419,7 @@ namespace RAD.ClipMon
 		}
         private void itemLogout_Click(object sender, EventArgs e) {
             Settings.Default.url = "";
-            _client.Dispose();
+            //_client.Dispose();
             itmHide_Click(sender, e);
             BasePath = "https://clipboard-copy.firebaseio.com/"; 
             showLogin();
@@ -612,9 +562,11 @@ namespace RAD.ClipMon
             // 
             // itemLogout
             // 
+            this.itemLogout.Enabled = false;
             this.itemLogout.Index = 2;
             this.itemLogout.MergeOrder = 1000;
             this.itemLogout.Text = "Log Out";
+            this.itemLogout.Visible = false;
             // 
             // ctlClipboardText
             // 
@@ -651,7 +603,7 @@ namespace RAD.ClipMon
             // 
             // ptrbox
             // 
-            this.ptrbox.Image = ((System.Drawing.Image)(resources.GetObject("ptrbox.Image")));
+            this.ptrbox.Image = global::copy.copy.Properties.Resources.ic_connect;
             this.ptrbox.Location = new System.Drawing.Point(157, 23);
             this.ptrbox.Name = "ptrbox";
             this.ptrbox.Size = new System.Drawing.Size(134, 126);
@@ -717,6 +669,7 @@ namespace RAD.ClipMon
                 BasePath = BasePath
             };
             _client = new FirebaseClient(config);
+            this.itemLogout.Visible = true;
              ListenToStream();
            
         }

@@ -10,7 +10,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDescription("Copy Copy Sync your clipboard")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("DuongKK")]
-[assembly: AssemblyProduct("")]
+[assembly: AssemblyProduct("DuongKK")]
 [assembly: AssemblyCopyright("Copyright (c) DuongKK")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]		

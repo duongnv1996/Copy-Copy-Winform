@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-  <asmv1:assemblyIdentity name="Copy Copy.exe" version="1.0.0.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
+  <asmv1:assemblyIdentity name="Copy Copy.exe" version="1.0.0.4" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
   <description asmv2:iconFile="App.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="Copy Copy" version="1.1.6087.1399" language="neutral" processorArchitecture="msil" />
+    <assemblyIdentity name="Copy Copy" version="1.1.6087.42547" language="neutral" processorArchitecture="msil" />
     <commandLine file="Copy Copy.exe" parameters="" />
   </entryPoint>
   <trustInfo>
@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Copy Copy.exe" size="434176">
-      <assemblyIdentity name="Copy Copy" version="1.1.6087.1399" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Copy Copy.exe" size="1216512">
+      <assemblyIdentity name="Copy Copy" version="1.1.6087.42547" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>zCI8kOtu1lqV9pKRR9+gSYZKwyf8Nd2CS68dSlqGP6Q=</dsig:DigestValue>
+        <dsig:DigestValue>UIFXBnWf09K4ZHGrygA6rMtyzndiFDHMstM5y8Txn7I=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -150,13 +150,13 @@
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="App.ico" size="1078">
+  <file name="App.ico" size="370070">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>OCzTmXgySRviSOGdrwDliBBXx6CBivI2STQaK5fhJSc=</dsig:DigestValue>
+      <dsig:DigestValue>IZycLQPoYHe2J8DDDNR9xPikPTtard51t4ikt/j+Cx4=</dsig:DigestValue>
     </hash>
   </file>
   <file name="Copy Copy.exe.config" size="1665">
